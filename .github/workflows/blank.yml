@@ -1,0 +1,14 @@
+name: AwsDemo Project
+on: workflow_dispatch
+jobs:
+ awsproject:
+   runs-on: ubuntu-latest
+   steps:
+     - name: HelloStep
+       run: echo "Welcome to aws project"
+       
+       
+     
+   
+ 
+ 
