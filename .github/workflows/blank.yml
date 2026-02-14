@@ -1,14 +1,41 @@
-name: AwsDemo Project
-on: workflow_dispatch
+name: Deploy React + PHP App (react-app)
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
- awsproject:
-   runs-on: ubuntu-latest
-   steps:
-     - name: HelloStep
-       run: echo "Welcome to aws project"
-       
-       
-     
-   
- 
- 
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build React frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /var/www/react-app
+            git pull origin main
+
+            # Deploy React build
+            rm -rf public/*
+            cp -r frontend/build/* public/
+
+            # PHP dependencies (optional)
+            if [ -f backend/composer.json ]; then
+              cd backend
+              composer install --no-dev --optimize-autoloader
+            fi
+
