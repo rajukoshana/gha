@@ -5,4 +5,6 @@ echo json_encode([
     "message" => "Vite + PHP backend working!"
 ]);
 
+
+
 ?>
