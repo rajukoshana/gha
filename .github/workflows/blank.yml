@@ -29,23 +29,31 @@ jobs:
             cd /var/www/react-app
             git pull origin main
 
-            TMP_DIR=/var/www/react-app/public_tmp
-            rm -rf $TMP_DIR
-            cp -r /var/www/react-app/frontend/dist $TMP_DIR
+              # Define directories
+            APP_DIR=/var/www/react-app
+            TMP_DIR=$APP_DIR/public_tmp
+            PUBLIC_DIR=$APP_DIR/public
+            OLD_DIR=$APP_DIR/public_old
 
-            # 2. Swap folders atomically
-            sudo mv /var/www/react-app/public /var/www/react-app/public_old
-            sudo mv $TMP_DIR /var/www/react-app/public
+            # 1. Remove old temp folder if exists
+            sudo rm -rf $TMP_DIR
 
-            # 3. Fix permissions
-            sudo chown -R www-data:www-data /var/www/react-app/public
-            sudo chmod -R 755 /var/www/react-app/public
+            # 2. Copy new build to temp folder
+            sudo cp -r $APP_DIR/frontend/dist $TMP_DIR
 
-            # 4. Reload nginx
+            # 3. Swap folders atomically
+            sudo mv $PUBLIC_DIR $OLD_DIR
+            sudo mv $TMP_DIR $PUBLIC_DIR
+
+            # 4. Fix permissions so Nginx can serve
+            sudo chown -R www-data:www-data $PUBLIC_DIR
+            sudo chmod -R 755 $PUBLIC_DIR
+
+            # 5. Reload Nginx
             sudo systemctl reload nginx
 
-            # Optional: remove old folder
-            rm -rf /var/www/react-app/public_old
+            # 6. Clean up old folder (force with sudo)
+            sudo rm -rf $OLD_DIR
 
             # Deploy React build
             #sudo rm -rf /var/www/react-app/public/*
