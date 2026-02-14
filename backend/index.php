@@ -6,5 +6,4 @@ echo json_encode([
 ]);
 
 
-
 ?>
