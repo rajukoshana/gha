@@ -33,10 +33,14 @@ jobs:
             #rm -rf public/*
             #cp -r frontend/build/* public/
 
+            sudo rm -rf /var/www/react-app/public/*
+            sudo cp -r /var/www/react-app/frontend/dist/* /var/www/react-app/public/
+
+
             sudo cp -r /var/www/react-app/frontend/dist/* /var/www/react-app/public/
             sudo chown -R www-data:www-data /var/www/react-app/public
             sudo chmod -R 755 /var/www/react-app/public
-
+            sudo systemctl reload nginx
 
             # PHP dependencies (optional)
             if [ -f backend/composer.json ]; then
