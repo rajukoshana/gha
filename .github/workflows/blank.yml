@@ -30,8 +30,13 @@ jobs:
             git pull origin main
 
             # Deploy React build
-            rm -rf public/*
-            cp -r frontend/build/* public/
+            #rm -rf public/*
+            #cp -r frontend/build/* public/
+
+            sudo cp -r /var/www/react-app/frontend/dist/* /var/www/react-app/public/
+            sudo chown -R www-data:www-data /var/www/react-app/public
+            sudo chmod -R 755 /var/www/react-app/public
+
 
             # PHP dependencies (optional)
             if [ -f backend/composer.json ]; then
