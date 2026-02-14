@@ -4,4 +4,6 @@ echo json_encode([
     "status" => "ok",
     "message" => "Vite + PHP backend working!"
 ]);
+
+
 ?>
