@@ -39,7 +39,9 @@ jobs:
             sudo rm -rf $TMP_DIR
 
             # 2. Copy new build to temp folder
-            sudo cp -r $APP_DIR/frontend/dist $TMP_DIR
+            #sudo cp -r $APP_DIR/frontend/dist $TMP_DIR
+            sudo cp -r $APP_DIR/frontend/dist/* $TMP_DIR
+
 
             # 3. Swap folders atomically
             sudo mv $PUBLIC_DIR $OLD_DIR
