@@ -39,21 +39,12 @@ jobs:
             sudo rm -rf $TMP_DIR
 
             # 2. Copy new build to temp folder
-            #sudo cp -r $APP_DIR/frontend/dist $TMP_DIR
-            #sudo cp -r $APP_DIR/frontend/dist/* $TMP_DIR
-
-            # 2. Copy new build CONTENTS to temp folder
-            sudo mkdir -p $TMP_DIR
-            sudo cp -r $APP_DIR/frontend/dist/* $TMP_DIR
-
-            # 3. Swap folders
-            sudo rm -rf $PUBLIC_DIR
-            sudo mv $TMP_DIR $PUBLIC_DIR
-
+            sudo cp -r $APP_DIR/frontend/dist $TMP_DIR
+            
 
             # 3. Swap folders atomically
-           # sudo mv $PUBLIC_DIR $OLD_DIR
-            #sudo mv $TMP_DIR $PUBLIC_DIR
+            sudo mv $PUBLIC_DIR $OLD_DIR
+            sudo mv $TMP_DIR $PUBLIC_DIR
 
             # 4. Fix permissions so Nginx can serve
             sudo chown -R www-data:www-data $PUBLIC_DIR
