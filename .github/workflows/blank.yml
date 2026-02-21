@@ -13,12 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build React frontend
-        run: |
-          cd frontend
-          npm install
-          npm run build
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -26,59 +20,53 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /var/www/react-app
-            git pull origin main
 
-              # Define directories
+            # Go to project root
+            cd /var/www/react-app
+
+            echo "Pulling latest code..."
+            git fetch --all
+            git reset --hard origin/main
+
+            echo "Building Vite frontend..."
+            cd frontend
+            npm install
+            npm run build
+
+            # Define directories
             APP_DIR=/var/www/react-app
             TMP_DIR=$APP_DIR/public_tmp
             PUBLIC_DIR=$APP_DIR/public
             OLD_DIR=$APP_DIR/public_old
 
-            # 1. Remove old temp folder if exists
+            echo "Preparing new build..."
+
+            # Remove old temp folder if exists
             sudo rm -rf $TMP_DIR
 
-            # 2. Copy new build to temp folder
+            # Copy new dist build to temp folder
             sudo cp -r $APP_DIR/frontend/dist $TMP_DIR
-            
 
-            # 3. Swap folders atomically
+            echo "Swapping public folders..."
+
+            # Atomic swap
             sudo mv $PUBLIC_DIR $OLD_DIR
             sudo mv $TMP_DIR $PUBLIC_DIR
 
-            # 4. Fix permissions so Nginx can serve
+            # Fix permissions
             sudo chown -R www-data:www-data $PUBLIC_DIR
             sudo chmod -R 755 $PUBLIC_DIR
 
-            # 5. Reload Nginx
+            echo "Reloading Nginx..."
             sudo systemctl reload nginx
 
-            # 6. Clean up old folder (force with sudo)
+            # Remove old build
             sudo rm -rf $OLD_DIR
 
-            # Deploy React build
-            #sudo rm -rf /var/www/react-app/public/*
-            #sudo cp -r /var/www/react-app/frontend/dist/* /var/www/react-app/public/
-            #sudo chown -R www-data:www-data /var/www/react-app/public
-            #sudo chmod -R 755 /var/www/react-app/public
-            #sudo systemctl reload nginx
-
-
-            #rm -rf public/*
-            #cp -r frontend/build/* public/
-
-            #sudo rm -rf /var/www/react-app/public/*
-            #sudo cp -r /var/www/react-app/frontend/dist/* /var/www/react-app/public/
-
-
-            #sudo cp -r /var/www/react-app/frontend/dist/* /var/www/react-app/public/
-            #sudo chown -R www-data:www-data /var/www/react-app/public
-            #sudo chmod -R 755 /var/www/react-app/public
-            #sudo systemctl reload nginx
-
-            # PHP dependencies (optional)
-            if [ -f backend/composer.json ]; then
-              cd backend
+            echo "Installing PHP dependencies (if exists)..."
+            if [ -f $APP_DIR/backend/composer.json ]; then
+              cd $APP_DIR/backend
               composer install --no-dev --optimize-autoloader
             fi
 
+            echo "Deployment complete."
